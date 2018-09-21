@@ -11,11 +11,11 @@ from logging  import ERROR, WARNING, INFO, DEBUG, NOTSET
 def parse_arguments():
     parser = ArgumentParser(description='Tool to up- and download files to and from micropython.')
     verbose = parser.add_mutually_exclusive_group()
-    operation = parser.add_mutually_exclusive_group()
     verbose.add_argument(  "-q", "--quiet",    action = "store_true",                help = "turn off warnings")
     verbose.add_argument(  "-v",               action = "count",                     help = "set verbose loglevel")
     parser.add_argument(   "-p", "--port",     type = str, default = "/dev/ttyUSB0", help = "path serial device (default = \"/dev/ttyUSB0\")")
     parser.add_argument(   "-f", "--freq",     type = float, default = 10000000,     help = "frequency (default = 10000000")
+    parser.add_argument(   "-s", "--save",     action = "store_true",                help = "save config on FE-5680A")
     args = parser.parse_args()
     return args
 
@@ -53,6 +53,9 @@ if __name__ == "__main__":
             log.info("New multiplier is\t{} ({}).".format(F, hex(F)))
             com.write('F={:016x}\r'.format(F).encode())
             log.debug(com.read_until(b'OK\r'))
+            if args.save:
+                com.write(b'E\r')
+                log.debug(com.read_until(b'OK\r'))
             com.write(b'S\r')
             log.debug(com.read_until(b'OK\r'))
         else:
